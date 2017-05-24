@@ -22,7 +22,8 @@ Application configuration from environment variables made easy
 
 .. code-block:: python
 
-   # Any environment variable defined will be 
+   # Any environment variable defined will be retrieved and casted to
+   # the python value.
    os.environ['MYAPP_DB_NAME'] = 'mydbname'
    assert AppConfig.DB_NAME == 'mydbname'
 
