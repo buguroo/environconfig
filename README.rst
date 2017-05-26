@@ -51,7 +51,7 @@ Application configuration from environment variables made easy
    os.environ['MYAPP_DB_PORT'] = 'this is not a valid integer'
    try:
        port = AppConfig.DB_PORT
-   except ValueError:
+   except VarTypeCastError:
        # Verification is made in access time.
        pass
 

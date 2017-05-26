@@ -37,6 +37,7 @@ class ClassAndInstanceMethod:
         self.obj = owner if instance is None else instance
         return self
 
+classandinstancemethod = ClassAndInstanceMethod  # A prettier alias
 
 #
 # Base classes
@@ -52,12 +53,29 @@ class EnvironConfig(EnvironConfigABC):
 
         self.environ = environ
 
-    @ClassAndInstanceMethod
+    @classandinstancemethod
     def getvar(obj, name):
         try:
             return obj.environ[obj.__varpreffix__ + name]
         except KeyError as exc:
             raise VarUnsetError("Unset var '{}'".format(name))
+
+    @classandinstancemethod
+    def verify(obj, name=None):
+        if name is None:
+            for name in dir(obj):
+                try:
+                    getattr(obj, name)
+                except (VarUnsetError, VarTypeCastError):
+                    return False
+        else:
+            try:
+                getattr(obj, name)
+            except (VarUnsetError, VarTypeCastError):
+                return False
+
+        return True
+
 
 class BaseVar(VarABC):
     _name = None
@@ -72,7 +90,7 @@ class BaseVar(VarABC):
 
     def __set_name__(self, owner, name=None):
         if name is None:
-            # Explicit call (non-native)
+            # Explicit call (non-native).
             for name, value in owner.__dict__.items():
                 if value is self:
                     self._name = name
@@ -81,18 +99,29 @@ class BaseVar(VarABC):
                 raise ValueError("Name not found.")
         else:
             # Called by python >= 3.6 at the time the owning class owner
-            # is created
+            # is created.
             self._name = name
 
     def __get__(self, instance, owner):
-        cls = owner if instance is None else type(instance)
         env = owner if instance is None else instance
-        name = self.__get_name__(cls)
-        if issubclass(cls, EnvironConfig):
-            raw = env.getvar(name)
-            return self._to_python(raw)
+
+        if issubclass(owner, EnvironConfig):
+            name = self.__get_name__(owner)
+            try:
+                raw = env.getvar(name)
+            except VarUnsetError:
+                if self.default is NoVarDefault:
+                    raise
+                else:
+                    return self.default
+            else:
+                try:
+                    return self._to_python(raw)
+                except Exception as exc:
+                    raise VarTypeCastError(
+                        "Cannot convert the value to python") from exc
         else:
-            raise TypeError("Invalid environment type {}".format(type(env)))
+            raise TypeError("Invalid environment {}".format(env))
 
 
 #
@@ -107,3 +136,11 @@ class VarUnsetError(KeyError):
     """The environment variable is not set."""
     pass
 
+
+class VarTypeCastError(ValueError):
+    """
+    The environment variable can't be casted to the appropiate Python
+    type.
+
+    """
+    pass

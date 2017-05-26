@@ -93,3 +93,8 @@ def test_getvar_unset_var_class():
 
     with pytest.raises(VarUnsetError):
         EnvironStub.getvar("missingvar")
+
+
+@pytest.mark.wip
+def test_verify_success_if_no_fields():
+    assert EnvironConfig.verify()
