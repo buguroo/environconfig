@@ -4,6 +4,14 @@ from hypothesis import given, assume
 
 from environconfig import IntVar
 
+def isint(value):
+    try:
+        int(value)
+    except ValueError:
+        return False
+    else:
+        return True
+
 
 @given(st.integers())
 def test_intvar_with_integer_value(value):
@@ -12,6 +20,6 @@ def test_intvar_with_integer_value(value):
 
 @given(st.text())
 def test_intvar_with_no_integer_value(value):
-    assume(not value.isnumeric())
+    assume(not isint(value))
     with pytest.raises(ValueError):
         assert IntVar()._to_python(value)
