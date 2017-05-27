@@ -55,10 +55,11 @@ class EnvironConfig(EnvironConfigABC):
 
     @classandinstancemethod
     def getvar(obj, name):
+        varname = obj.__varpreffix__ + name
         try:
-            return obj.environ[obj.__varpreffix__ + name]
+            return obj.environ[varname]
         except KeyError as exc:
-            raise VarUnsetError("Unset var '{}'".format(name))
+            raise VarUnsetError("Unset var '{}'".format(varname))
 
     @classandinstancemethod
     def verify(obj, name=None):
@@ -125,9 +126,37 @@ class BaseVar(VarABC):
 
 
 #
-# Var definition
+# Var types definition
 #
-StringVar = IntVar = None
+class StringVar(BaseVar):
+    def _to_python(self, value):
+        return value
+
+
+class PathVar(BaseVar):
+    def _to_python(self, value):
+        return os.path.abspath(os.path.expanduser(value))
+
+
+class IntVar(BaseVar):
+    def _to_python(self, value):
+        return int(value)
+
+
+class FloatVar(BaseVar):
+    def _to_python(self, value):
+        return float(value)
+
+
+class BooleanVar(BaseVar):
+    def _to_python(self, value):
+        if value in ('1', 'yes', 'true', 'on'):
+            return True
+        elif value in ('0', 'no', 'false', 'off'):
+            return False
+        else:
+            raise ValueError("Unknown value %r" % value)
+
 
 #
 # Custom exceptions

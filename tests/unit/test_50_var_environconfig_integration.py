@@ -6,7 +6,6 @@ from environconfig import EnvironConfig
 from environconfig import VarUnsetError, VarTypeCastError
 
 
-@pytest.mark.wip
 def test_var_must_be_attached_to_environconfig_class(VarStub):
     class NoEnvironConfig:
         var = VarStub()
@@ -15,7 +14,6 @@ def test_var_must_be_attached_to_environconfig_class(VarStub):
         NoEnvironConfig.var
 
 
-@pytest.mark.wip
 def test_var_must_be_attached_to_environconfig_instance(VarStub):
     class NoEnvironConfig:
         var = VarStub()
@@ -24,7 +22,6 @@ def test_var_must_be_attached_to_environconfig_instance(VarStub):
         NoEnvironConfig().var
 
 
-@pytest.mark.wip
 def test_unset_variable_and_no_default_raises(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var = VarStub()
@@ -35,7 +32,6 @@ def test_unset_variable_and_no_default_raises(VarStub):
         ec.var
 
 
-@pytest.mark.wip
 def test_variable_calls_to_python(VarStub):
 
     vs = VarStub()
@@ -51,7 +47,6 @@ def test_variable_calls_to_python(VarStub):
     vs._to_python.assert_called_with('MYVALUE')
 
 
-@pytest.mark.wip
 def test_variable_returns_default(VarStub):
 
     class MyEnvironConfig(EnvironConfig):
@@ -62,7 +57,6 @@ def test_variable_returns_default(VarStub):
     assert ec.var == 'MYDEFAULT'
 
 
-@pytest.mark.wip
 def test_to_python_exceptions_are_masked(VarStub):
     vs = VarStub()
     vs._to_python = MagicMock(
@@ -77,7 +71,6 @@ def test_to_python_exceptions_are_masked(VarStub):
         ec.var
 
 
-@pytest.mark.wip
 def test_verify_pass_if_all_provided(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub()
@@ -89,7 +82,6 @@ def test_verify_pass_if_all_provided(VarStub):
     assert ec.verify()
 
 
-@pytest.mark.wip
 def test_verify_pass_if_not_provided_but_have_defaults(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub(default='MYVALUE1')
@@ -100,7 +92,6 @@ def test_verify_pass_if_not_provided_but_have_defaults(VarStub):
     assert ec.verify()
 
 
-@pytest.mark.wip
 def test_verify_fails_if_not_provided_and_no_default(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub(default='MYVALUE1')
@@ -111,7 +102,6 @@ def test_verify_fails_if_not_provided_and_no_default(VarStub):
     assert not ec.verify()
 
 
-@pytest.mark.wip
 def test_verify_one_success_if_provided(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub()
@@ -121,7 +111,6 @@ def test_verify_one_success_if_provided(VarStub):
     assert ec.verify('var1')
 
 
-@pytest.mark.wip
 def test_verify_one_success_if_default(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub(default='MYVALUE1')
@@ -131,7 +120,6 @@ def test_verify_one_success_if_default(VarStub):
     assert ec.verify('var1')
 
 
-@pytest.mark.wip
 def test_fail_if_not_provided_and_no_default(VarStub):
     class MyEnvironConfig(EnvironConfig):
         var1 = VarStub()

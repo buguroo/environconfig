@@ -22,12 +22,10 @@ skipif_no_native_set_name = partial(
     sys.version_info < (3, 6))
 
 
-@pytest.mark.wip
 def test_basevar_is_varabc():
     assert issubclass(BaseVar, VarABC)
 
 
-@pytest.mark.wip
 @skipif_native_set_name()
 def test_basevar_setname_without_name(VarStub):
     fs = VarStub()
@@ -40,7 +38,6 @@ def test_basevar_setname_without_name(VarStub):
     assert fs._name == "var"
 
 
-@pytest.mark.wip
 @skipif_native_set_name()
 def test_basevar_setname_without_name_bad_owner(VarStub):
     fs = VarStub()
@@ -52,7 +49,6 @@ def test_basevar_setname_without_name_bad_owner(VarStub):
         fs.__set_name__(MyClass)
 
 
-@pytest.mark.wip
 @skipif_no_native_set_name()
 def test_basevar_setname_with_name(VarStub):
     fs = VarStub()
@@ -63,7 +59,6 @@ def test_basevar_setname_with_name(VarStub):
     assert fs._name == "var"
 
 
-@pytest.mark.wip
 @skipif_native_set_name()
 def test_basevar_getname_return_name(VarStub):
     fs = VarStub()
@@ -74,7 +69,6 @@ def test_basevar_getname_return_name(VarStub):
     assert fs.__get_name__(MyClass) == "var"
 
 
-@pytest.mark.wip
 @skipif_native_set_name()
 def test_basevar_getname_setname_if_not_set(VarStub):
     fs = VarStub()
@@ -87,13 +81,11 @@ def test_basevar_getname_setname_if_not_set(VarStub):
     assert fs._name == "var"
 
 
-@pytest.mark.wip
 def test_basevar_have_nodefault(VarStub):
     fs = VarStub()
     assert fs.default is NoVarDefault
 
 
-@pytest.mark.wip
 def test_basevar_stores_default(VarStub):
     fs = VarStub(default="MYVALUE")
     assert fs.default == "MYVALUE"

@@ -3,7 +3,6 @@ import pytest
 from environconfig import EnvironConfigABC, VarABC
 
 
-@pytest.mark.wip
 def test_environconfigabc_interface():
     with pytest.raises(TypeError):
         EnvironConfigABC()
@@ -16,7 +15,6 @@ def test_environconfigabc_interface():
     EnvironStub()
 
 
-@pytest.mark.wip
 def test_varabc_interface():
     with pytest.raises(TypeError):
         VarABC()

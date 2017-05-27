@@ -14,7 +14,10 @@ BASE = [
 
 VARS = [
     "StringVar",
-    "IntVar"]
+    "PathVar",
+    "IntVar",
+    "FloatVar",
+    "BooleanVar"]
 
 EXCEPTIONS = [
     "VarUnsetError"]
@@ -23,7 +26,6 @@ OTHER = [
     "NoVarDefault"]
 
 
-@pytest.mark.wip
 @pytest.mark.parametrize("objectname",
                          ABSTRACT + BASE + VARS + EXCEPTIONS + OTHER)
 def test_environconfig_imports(objectname):

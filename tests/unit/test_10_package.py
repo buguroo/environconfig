@@ -1,7 +1,6 @@
 import pytest
 
 
-@pytest.mark.wip
 def test_package():
     try:
         import environconfig
