@@ -22,7 +22,8 @@ Application configuration from environment variables made easy
 
 .. code-block:: python
 
-   # Any environment variable defined will be 
+   # Any environment variable defined will be retrieved and casted to
+   # the python value.
    os.environ['MYAPP_DB_NAME'] = 'mydbname'
    assert AppConfig.DB_NAME == 'mydbname'
 
@@ -50,7 +51,7 @@ Application configuration from environment variables made easy
    os.environ['MYAPP_DB_PORT'] = 'this is not a valid integer'
    try:
        port = AppConfig.DB_PORT
-   except ValueError:
+   except VarTypeCastError:
        # Verification is made in access time.
        pass
 
