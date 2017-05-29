@@ -10,7 +10,8 @@ ABSTRACT = [
 
 BASE = [
     "EnvironConfig",
-    "BaseVar"]
+    "EnvironVar",
+    "VirtualVar"]
 
 VARS = [
     "StringVar",

@@ -1,6 +1,6 @@
 import pytest
 
-from environconfig import EnvironConfigABC, VarABC
+from environconfig import EnvironConfigABC, EnvironVar
 
 
 def test_environconfigabc_interface():
@@ -26,7 +26,7 @@ def test_environconfigabc_register_fields_with_no_fields():
 
 def test_environconfigabc_register_fields_with_fields():
 
-    class VarStub(VarABC):
+    class VarStub(EnvironVar):
         def _to_python(self, value):
             pass
 
@@ -42,9 +42,9 @@ def test_environconfigabc_register_fields_with_fields():
 
 def test_varabc_interface():
     with pytest.raises(TypeError):
-        VarABC()
+        EnvironVar()
 
-    class VarStub(VarABC):
+    class VarStub(EnvironVar):
         def _to_python(self, value):
             pass
 
