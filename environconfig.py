@@ -77,7 +77,7 @@ classandinstancemethod = ClassAndInstanceMethod  # A prettier alias
 #
 class EnvironConfig(EnvironConfigABC):
 
-    __varpreffix__ = ""
+    __varprefix__ = ""
     environ = os.environ
 
     def __init__(self, environ=os.environ):
@@ -88,7 +88,7 @@ class EnvironConfig(EnvironConfigABC):
 
     @classandinstancemethod
     def getvar(obj, name):
-        varname = obj.__varpreffix__ + name
+        varname = obj.__varprefix__ + name
         try:
             return obj.environ[varname]
         except KeyError as exc:

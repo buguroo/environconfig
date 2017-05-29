@@ -30,19 +30,19 @@ def test_environ_must_be_a_mapping():
         EnvironConfig(environ=None)
 
 
-def test_default_preffix_is_empty():
-    assert EnvironConfig.__varpreffix__ == ''
+def test_default_prefix_is_empty():
+    assert EnvironConfig.__varprefix__ == ''
 
 
-def test_getvar_without_preffix_instance():
+def test_getvar_without_prefix_instance():
     ec = EnvironConfig(environ={'MYKEY': 'MYVALUE'})
     assert ec.getvar('MYKEY') == 'MYVALUE'
 
 
-def test_getvar_with_preffix_instance():
+def test_getvar_with_prefix_instance():
 
     class EnvironStub(EnvironConfig):
-        __varpreffix__ = 'MYPREFFIX_'
+        __varprefix__ = 'MYPREFFIX_'
 
     ec = EnvironStub(environ={'MYPREFFIX_KEY': 'MYVALUE'})
     assert ec.getvar('KEY') == 'MYVALUE'
@@ -55,7 +55,7 @@ def test_getvar_unset_var_instance():
         ec.getvar("missingvar")
 
 
-def test_getvar_without_preffix_class():
+def test_getvar_without_prefix_class():
 
     class EnvironStub(EnvironConfig):
         environ = {'MYKEY': 'MYVALUE'}
@@ -63,10 +63,10 @@ def test_getvar_without_preffix_class():
     assert EnvironStub.getvar('MYKEY') == 'MYVALUE'
 
 
-def test_getvar_with_preffix_class():
+def test_getvar_with_prefix_class():
 
     class EnvironStub(EnvironConfig):
-        __varpreffix__ = 'MYPREFFIX_'
+        __varprefix__ = 'MYPREFFIX_'
         environ = {'MYPREFFIX_KEY': 'MYVALUE'}
 
 
@@ -76,7 +76,7 @@ def test_getvar_with_preffix_class():
 def test_getvar_unset_var_class():
 
     class EnvironStub(EnvironConfig):
-        __varpreffix__ = 'MYPREFFIX_'
+        __varprefix__ = 'MYPREFFIX_'
         environ = {}
 
     with pytest.raises(VarUnsetError):
