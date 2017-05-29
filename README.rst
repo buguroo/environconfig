@@ -19,6 +19,15 @@ Application configuration from environment variables made easy
        DB_USERNAME = StringVar()
        DB_PASSWORD = StringVar()
 
+       @CustomVar
+       def DB_CONFIG(env):
+           return {"hostname": env.DB_HOSTNAME,
+                   "port": env.DB_PORT,
+                   "user": env.DB_USERNAME,
+                   "password": env.DB_PASSWORD,
+                   "database": env.DB_NAME,
+                   "encoding": "utf-8"}
+
 
 .. code-block:: python
 
