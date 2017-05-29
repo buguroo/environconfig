@@ -5,17 +5,30 @@ import os
 #
 # Abstract classes
 #
-class EnvironConfigABC(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def getvar(self, name):
-        """Return the raw value for this variable."""
-        pass
-
-
 class VarABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _to_python(self, value):
         """Translate the raw value (string) to a python value."""
+        pass
+
+
+class EnvironConfigABCMeta(abc.ABCMeta):
+    def __new__(mcl, name, bases, nmspc):
+
+        # Register fields
+        fields = []
+        for key, value in nmspc.items():
+            if isinstance(value, VarABC):
+                fields.append(key)
+        nmspc["fields"] = tuple(fields)
+
+        return super(EnvironConfigABCMeta, mcl).__new__(mcl, name, bases, nmspc)
+
+
+class EnvironConfigABC(metaclass=EnvironConfigABCMeta):
+    @abc.abstractmethod
+    def getvar(self, name):
+        """Return the raw value for this variable."""
         pass
 
 #
@@ -64,18 +77,21 @@ class EnvironConfig(EnvironConfigABC):
     @classandinstancemethod
     def verify(obj, name=None):
         if name is None:
-            for name in dir(obj):
+            for name in obj.fields:
                 try:
                     getattr(obj, name)
                 except (VarUnsetError, VarTypeCastError):
                     return False
+            return True
+        elif not name in obj.fields:
+            raise UnknownVarError("field unknown %r" % name)
         else:
             try:
                 getattr(obj, name)
             except (VarUnsetError, VarTypeCastError):
                 return False
-
-        return True
+            else:
+                return True
 
 
 class BaseVar(VarABC):
@@ -170,6 +186,14 @@ class VarTypeCastError(ValueError):
     """
     The environment variable can't be casted to the appropiate Python
     type.
+
+    """
+    pass
+
+
+class UnknownVarError(ValueError):
+    """
+    This variable was not declared into the corresponding EnvironConfig.
 
     """
     pass

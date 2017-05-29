@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from environconfig import EnvironConfig
-from environconfig import VarUnsetError, VarTypeCastError
+from environconfig import VarUnsetError, VarTypeCastError, UnknownVarError
 
 
 def test_var_must_be_attached_to_environconfig_class(VarStub):
@@ -118,6 +118,16 @@ def test_verify_one_success_if_default(VarStub):
     ec = MyEnvironConfig(environ={})
 
     assert ec.verify('var1')
+
+
+def test_verify_one_raise_if_unknown(VarStub):
+    class MyEnvironConfig(EnvironConfig):
+        var1 = VarStub(default='MYVALUE1')
+
+    ec = MyEnvironConfig(environ={'var1': 'MYVALUE1'})
+
+    with pytest.raises(UnknownVarError):
+        assert ec.verify('var2')
 
 
 def test_fail_if_not_provided_and_no_default(VarStub):

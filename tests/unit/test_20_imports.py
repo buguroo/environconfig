@@ -20,7 +20,9 @@ VARS = [
     "BooleanVar"]
 
 EXCEPTIONS = [
-    "VarUnsetError"]
+    "VarUnsetError",
+    "VarTypeCastError",
+    "UnknownVarError"]
 
 OTHER = [
     "NoVarDefault"]
