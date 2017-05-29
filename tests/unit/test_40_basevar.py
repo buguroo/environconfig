@@ -3,7 +3,7 @@ from functools import partial
 
 import pytest
 
-from environconfig import BaseVar
+from environconfig import EnvironVar
 from environconfig import NoVarDefault
 from environconfig import VarABC
 
@@ -23,7 +23,7 @@ skipif_no_native_set_name = partial(
 
 
 def test_basevar_is_varabc():
-    assert issubclass(BaseVar, VarABC)
+    assert issubclass(EnvironVar, VarABC)
 
 
 @skipif_native_set_name()

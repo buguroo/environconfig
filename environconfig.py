@@ -6,9 +6,29 @@ import os
 # Abstract classes
 #
 class VarABC(metaclass=abc.ABCMeta):
+    _name = None
+
+    def __get_name__(self, owner):
+        if self._name is None:
+            self.__set_name__(owner)
+        return self._name
+
+    def __set_name__(self, owner, name=None):
+        if name is None:
+            # Explicit call (non-native).
+            for name, value in owner.__dict__.items():
+                if value is self:
+                    self._name = name
+                    break
+            else:
+                raise ValueError("Name not found.")
+        else:
+            # Called by python >= 3.6 at the time the owning class owner
+            # is created.
+            self._name = name
+
     @abc.abstractmethod
-    def _to_python(self, value):
-        """Translate the raw value (string) to a python value."""
+    def __get__(self, instance, owner):
         pass
 
 
@@ -94,30 +114,9 @@ class EnvironConfig(EnvironConfigABC):
                 return True
 
 
-class BaseVar(VarABC):
-    _name = None
-
+class EnvironVar(VarABC):
     def __init__(self, default=NoVarDefault):
         self.default = default
-
-    def __get_name__(self, owner):
-        if self._name is None:
-            self.__set_name__(owner)
-        return self._name
-
-    def __set_name__(self, owner, name=None):
-        if name is None:
-            # Explicit call (non-native).
-            for name, value in owner.__dict__.items():
-                if value is self:
-                    self._name = name
-                    break
-            else:
-                raise ValueError("Name not found.")
-        else:
-            # Called by python >= 3.6 at the time the owning class owner
-            # is created.
-            self._name = name
 
     def __get__(self, instance, owner):
         env = owner if instance is None else instance
@@ -140,31 +139,51 @@ class BaseVar(VarABC):
         else:
             raise TypeError("Invalid environment {}".format(env))
 
+    @abc.abstractmethod
+    def _to_python(self, value):
+        """Translate the raw value (string) to a python value."""
+        pass
+
+
+class VirtualVar(VarABC):
+    def __get__(self, instance, owner):
+        env = owner if instance is None else instance
+        if issubclass(owner, EnvironConfig):
+            name = self.__get_name__(owner)
+            return self._action(env, name)
+        else:
+            raise TypeError("Invalid environment {}".format(env))
+
+    @abc.abstractmethod
+    def _action(self, env, name):
+        """Action to do in the VirtualVar."""
+        pass
+
 
 #
 # Var types definition
 #
-class StringVar(BaseVar):
+class StringVar(EnvironVar):
     def _to_python(self, value):
         return value
 
 
-class PathVar(BaseVar):
+class PathVar(EnvironVar):
     def _to_python(self, value):
         return os.path.abspath(os.path.expanduser(value))
 
 
-class IntVar(BaseVar):
+class IntVar(EnvironVar):
     def _to_python(self, value):
         return int(value)
 
 
-class FloatVar(BaseVar):
+class FloatVar(EnvironVar):
     def _to_python(self, value):
         return float(value)
 
 
-class BooleanVar(BaseVar):
+class BooleanVar(EnvironVar):
     def _to_python(self, value):
         if value in ('1', 'yes', 'true', 'on'):
             return True
@@ -173,6 +192,13 @@ class BooleanVar(BaseVar):
         else:
             raise ValueError("Unknown value %r" % value)
 
+
+class CustomVar(VirtualVar):
+    def __init__(self, callable):
+        self.callable = callable
+
+    def _action(self, env, name):
+        return self.callable(env)
 
 #
 # Custom exceptions
