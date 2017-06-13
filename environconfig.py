@@ -78,10 +78,11 @@ classandinstancemethod = ClassAndInstanceMethod  # A prettier alias
 class EnvironConfig(EnvironConfigABC):
 
     __varprefix__ = ""
-    environ = os.environ
+    environ = None
 
-    def __init__(self, environ=os.environ):
-        if not isinstance(environ, collections.abc.Mapping):
+    def __init__(self, environ=None):
+        if environ is not None \
+                and not isinstance(environ, collections.abc.Mapping):
             raise TypeError("environ must be a mapping")
 
         self.environ = environ
@@ -90,7 +91,10 @@ class EnvironConfig(EnvironConfigABC):
     def getvar(obj, name):
         varname = obj.__varprefix__ + name
         try:
-            return obj.environ[varname]
+            if obj.environ is None:
+                return os.environ[varname]
+            else:
+                return obj.environ[varname]
         except KeyError as exc:
             raise VarUnsetError("Unset var '{}'".format(varname))
 
@@ -193,7 +197,16 @@ class BooleanVar(EnvironVar):
             raise ValueError("Unknown value %r" % value)
 
 
-class CustomVar(VirtualVar):
+class CustomVar(EnvironVar):
+    def __init__(self, to_python, **kwargs):
+        self.to_python = to_python
+        super().__init__(self, **kwargs)
+
+    def _to_python(self, value):
+        return self.to_python(value)
+
+
+class MethodVar(VirtualVar):
     def __init__(self, callable):
         self.callable = callable
 

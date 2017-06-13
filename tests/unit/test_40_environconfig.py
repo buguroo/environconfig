@@ -11,8 +11,8 @@ def test_environconfig_is_environconfigabc():
     assert issubclass(EnvironConfig, EnvironConfigABC)
 
 
-def test_default_environ_is_os_environ():
-    assert EnvironConfig.environ is os.environ
+def test_default_environ_is_None():
+    assert EnvironConfig.environ is None
 
 
 def test_environ_can_be_overwritten():
@@ -21,13 +21,13 @@ def test_environ_can_be_overwritten():
     assert ec.environ is myenv
 
 
-def test_environ_defaults_to_os_environ():
-    assert EnvironConfig().environ is os.environ
+def test_environ_defaults_to_None():
+    assert EnvironConfig().environ is None
 
 
 def test_environ_must_be_a_mapping():
     with pytest.raises(TypeError):
-        EnvironConfig(environ=None)
+        EnvironConfig(environ=[])
 
 
 def test_default_prefix_is_empty():
@@ -81,6 +81,17 @@ def test_getvar_unset_var_class():
 
     with pytest.raises(VarUnsetError):
         EnvironStub.getvar("missingvar")
+
+
+def test_unset_environ_defaults_to_os_environ_class():
+    for key, value in os.environ.items():
+        assert EnvironConfig.getvar(key) == value
+
+
+def test_unset_environ_defaults_to_os_environ_instance():
+    env = EnvironConfig()
+    for key, value in os.environ.items():
+        assert env.getvar(key) == value
 
 
 def test_verify_success_if_no_fields():
