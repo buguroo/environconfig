@@ -200,7 +200,7 @@ class BooleanVar(EnvironVar):
 class CustomVar(EnvironVar):
     def __init__(self, to_python, **kwargs):
         self.to_python = to_python
-        super().__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def _to_python(self, value):
         return self.to_python(value)
