@@ -1,5 +1,7 @@
+from functools import partial
 import abc
 import collections.abc
+import csv
 import os
 
 #
@@ -195,6 +197,15 @@ class BooleanVar(EnvironVar):
             return False
         else:
             raise ValueError("Unknown value %r" % value)
+
+
+class ListVar(EnvironVar):
+    def __init__(self, dialect='excel', **kwargs):
+        self.reader = partial(csv.reader, dialect=dialect)
+        super().__init__(**kwargs)
+
+    def _to_python(self, value):
+        return tuple(next(self.reader([value])))
 
 
 class CustomVar(EnvironVar):
