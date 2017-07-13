@@ -216,6 +216,10 @@ class CustomVar(EnvironVar):
     def _to_python(self, value):
         return self.to_python(value)
 
+    @classmethod
+    def new(cls, to_python):
+        return partial(cls, to_python)
+
 
 class MethodVar(VirtualVar):
     def __init__(self, callable):
