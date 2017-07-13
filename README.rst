@@ -1,8 +1,18 @@
 environconfig
 =============
 
-`environconfig` allow you to use environment variables in Python with a
-declarative syntax.
+.. image:: https://img.shields.io/pypi/v/environconfig.svg
+    :target: https://pypi.python.org/pypi/environconfig
+
+.. image:: https://img.shields.io/pypi/pyversions/environconfig.svg
+    :target: https://pypi.python.org/pypi/environconfig
+
+.. image:: https://travis-ci.org/buguroo/environconfig.svg?branch=master
+    :target: https://travis-ci.org/buguroo/environconfig
+
+
+`environconfig` allows you to use environment variables in Python
+with a declarative syntax.
 
 A quick example:
 
