@@ -208,13 +208,17 @@ class ListVar(EnvironVar):
         return tuple(next(self.reader([value])))
 
 
-class CustomVar(EnvironVar):
+class _CustomVar(EnvironVar):
     def __init__(self, to_python, **kwargs):
         self.to_python = to_python
         super().__init__(**kwargs)
 
     def _to_python(self, value):
         return self.to_python(value)
+
+
+def CustomVar(to_python):
+    return partial(_CustomVar, to_python)
 
 
 class MethodVar(VirtualVar):
