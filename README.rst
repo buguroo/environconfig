@@ -1,76 +1,46 @@
 environconfig
 =============
 
-Application configuration from environment variables made easy
+`environconfig` allow you to use environment variables in Python with a
+declarative syntax.
 
-
-.. code-block:: python
-
-   from environconfig import EnvironConfig
-   from environconfig import StringVar, IntVar
-   from environconfig import VarUnsetError
-
-   class AppConfig(EnvironConfig):
-       __varprefix__ = 'MYAPP_'
-
-       DB_NAME = StringVar(default='mydatabase')
-       DB_HOSTNAME = StringVar(default='localhost')
-       DB_PORT = IntVar(default=3306)
-       DB_USERNAME = StringVar()
-       DB_PASSWORD = StringVar()
-
-       @MethodVar
-       def DB_CONFIG(env):
-           return {"hostname": env.DB_HOSTNAME,
-                   "port": env.DB_PORT,
-                   "user": env.DB_USERNAME,
-                   "password": env.DB_PASSWORD,
-                   "database": env.DB_NAME,
-                   "encoding": "utf-8"}
-
+A quick example:
 
 .. code-block:: python
 
-   # Any environment variable defined will be retrieved and casted to
-   # the python value.
-   os.environ['MYAPP_DB_NAME'] = 'mydbname'
-   assert AppConfig.DB_NAME == 'mydbname'
+    from environconfig import EnvironConfig
+    from environconfig import StringVar, IntVar
+
+    class DBCfg(EnvironConfig):
+        """Database configuration from the environment."""
+        HOSTNAME = StringVar(default='localhost')
+        PORT = IntVar(default=3306)
+        USERNAME = StringVar()
+        PASSWORD = StringVar()
+        CHARSET = StringVar(default='utf8mb4')
+        NAME = StringVar(default='mydatabase')
+
+    # Now you can start using it
+    connection = pymysql.connect(host=DBCfg.HOSTNAME,
+                                 user=DBCfg.USERNAME,
+                                 password=DBCfg.PASSWORD,
+                                 db=DBCfg.NAME,
+                                 charset=DBCfg.CHARSET,
+                                 cursorclass=pymysql.cursors.DictCursor)
+
+You can check more examples in the `examples` directory.
+    
+
+Features
+--------
+
+- Built-in basic types: String, Bool, Int, Float...
+- Easy Customizable: `CustomVar` (just pass a callable to make the conversion)
+- No mocking necessary for testing: Just instantiate your config with a dictionary.
+- Easy build complex constructions with environment data: See `MethodVar`
 
 
-.. code-block:: python
+Collaboration
+-------------
 
-   try:
-       user = AppConfig.DB_USERNAME
-   except VarUnsetError:
-       # If the environment variable is not set and neither the default
-       # value, this exception will be raised when the attribute is
-       # accessed.
-       pass
-
-
-.. code-block:: python
-
-   # Of course if you provide a default it will be available as a
-   # fallback.
-   assert AppConfig.DB_HOSTNAME == 'localhost'
-
-
-.. code-block:: python
-
-   os.environ['MYAPP_DB_PORT'] = 'this is not a valid integer'
-   try:
-       port = AppConfig.DB_PORT
-   except VarTypeCastError:
-       # Verification is made in access time.
-       pass
-
-
-.. code-block:: python
-
-   # But you can verify the whole config
-   AppConfig.verify()  # Return `True` if all attributes have a value
-                       # (or a default)
-
-   # Or a specific value
-   AppConfig.verify('DB_PORT')  # Return `True` if a value or a default is
-                                # provided for DB_PORT.
+- We are always open to pull requests and accept new var types.
