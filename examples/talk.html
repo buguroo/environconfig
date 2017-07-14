@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>environconfig</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# environconfig
+## Declarative Environment Variables
+
+---
+
+## Why should I use environment variables?
+
+--
+
+count: false 
+
+* Easy to change between deploys.
+
+--
+
+count: false 
+
+* Language and OS agnostic.
+
+--
+
+count: false 
+
+* Avoid hidden dependencies (config files).
+
+--
+
+count: false 
+
+* Docker friendly.
+
+--
+
+count: false 
+
+* Always available. No need to load them from disk.
+
+--
+
+count: false 
+
+* Very SIMPLE! String key -> String value.
+
+---
+
+## How can I use them in my project?
+
+--
+
+count: false
+
+### Easy, just get them from `os.environ`
+
+```python
+>>> import os
+>>> queue_size = os.environ['QUEUE_SIZE']
+>>> queue_size
+'3'
+```
+
+--
+
+count: false
+
+### OK, but I need an integer here!
+
+--
+
+count: false
+
+```python
+>>> queue_size = int(os.environ['QUEUE_SIZE'])
+>>> queue_size
+3
+```
+
+--
+
+### But if the variable is not set I need `None`, not `KeyError`!!!
+
+--
+
+count: false
+
+```python
+>>> try:
+...     queue_size = int(os.environ['QUEUE_SIZE'])
+... except KeyError:
+...     queue_size = None
+```
+
+---
+
+## 
+
+XXXX
+
+---
+
+## How can I use `environconfig`?
+
+--
+
+count: false
+
+### 1. Import
+
+```python
+from environconfig import EnvironConfig, IntVar
+```
+
+--
+
+count: false
+
+### 2. Define
+
+```python
+class Config(EnvironConfig):
+    QUEUE_SIZE = IntVar(default=None)
+```
+
+--
+
+count: false
+
+### 3. Enjoy!
+
+```python
+>>> Config.QUEUE_SIZE
+3
+```
+
+---
+
+## Do you need something more exotic?
+
+```python
+import json
+
+JSONVar = CustomVar(json.loads)
+
+class Config(EnvironConfig):
+    COMPLEX_DATA = JSONVar(default=None)
+```    
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
