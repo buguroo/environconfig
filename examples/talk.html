@@ -62,110 +62,259 @@ count: false
 
 count: false 
 
-* Very SIMPLE! String key -> String value.
+* Very SIMPLE! key -> value (both strings).
 
 ---
 
-## How can I use them in my project?
+## Environment Variables are cool! How can I use them in my project?
 
 --
 
-count: false
+count: false 
 
-### Easy, just get them from `os.environ`
+### The naive approach
+#### Easy, just get them from `os.environ`
 
 ```python
 >>> import os
->>> queue_size = os.environ['QUEUE_SIZE']
->>> queue_size
+>>> timeout = os.environ['TIMEOUT']
+>>> timeout
 '3'
 ```
 
---
+---
 
-count: false
-
-### OK, but I need an integer here!
-
---
-
-count: false
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### OK, but I want an integer here!
 
 ```python
->>> queue_size = int(os.environ['QUEUE_SIZE'])
->>> queue_size
+>>> timeout = int(os.environ['TIMEOUT'])
+>>> timeout
 3
 ```
 
---
+---
 
-### But if the variable is not set I need `None`, not `KeyError`!!!
-
---
-
-count: false
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
 
 ```python
 >>> try:
-...     queue_size = int(os.environ['QUEUE_SIZE'])
+...     timeout = int(os.environ['TIMEOUT'])
 ... except KeyError:
-...     queue_size = None
+...     timeout = None
 ```
 
 ---
 
-## 
+count: false 
 
-XXXX
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option B
+>>> timeout = os.environ.get('TIMEOUT', None)
+>>> if timeout is not None:
+...     timeout = int(timeout)
+```
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option C
+>>> timeout = None
+>>> if 'TIMEOUT' in os.environ:
+...     timeout = int(os.environ['TIMEOUT'])
+```
 
 ---
 
-## How can I use `environconfig`?
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option D
+>>> timeout = (int(os.environ.get['TIMEOUT'])
+...               if 'TIMEOUT' in os.environ
+...               else None)
+```
+
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option E
+>>> if 'TIMEOUT' in os.environ:
+...     timeout = int(os.environ['TIMEOUT'])
+... else:
+...     timeout = None
+```
+
+---
+
+# Problems with the naive approach
+
+* There **isn't** one obvious way to do it!
 
 --
 
 count: false
 
-### 1. Import
-
-```python
-from environconfig import EnvironConfig, IntVar
-```
+* Breaks the DRY principle.
 
 --
 
 count: false
-
-### 2. Define
-
-```python
-class Config(EnvironConfig):
-    QUEUE_SIZE = IntVar(default=None)
-```
+* The code is often hard to read.
 
 --
 
 count: false
+* There is not a single point of definition.
 
-### 3. Enjoy!
+  * Usage of envvars can be spread all around your code.
 
-```python
->>> Config.QUEUE_SIZE
-3
-```
+  * How do I know which variables my program is expecting? My interface is not well defined.
+
+---
+
+# Is there a better way?
+## Yes! use `environconfig`
+
+--
+
+`environconfig` is like Django models but for the environment
+
+
+* models.Model -> environconfig.EnvironConfig
+
+* models.<i>MyType</i>Field -> environconfig.<i>MyType</i>Var
+
+--
+
+#### 1) Define your "model"
+
+   ```python
+   class Config(EnvironConfig):
+       TIMEOUT = IntVar(default=None)
+   ```
+
+--
+
+#### 2) Use it!
+
+   ```python
+   >>> Config.TIMEOUT
+   3
+   ```
+---
+
+## Basic types built-in
+
+- String
+- Integer
+- Float
+- Boolean
+- Paths
+- List
+
+### Missing something?
+
+Please, send a pull request!
 
 ---
 
 ## Do you need something more exotic?
 
 ```python
-import json
+# complex.py
 
-JSONVar = CustomVar(json.loads)
+import json
+from environconfig import EnvironConfig, CustomVar
+
+JSONVar = CustomVar.new(json.loads)
 
 class Config(EnvironConfig):
     COMPLEX_DATA = JSONVar(default=None)
-```    
+
+print(Config.COMPLEX_DATA)
+```
+
+--
+
+```bash
+$ export COMPLEX_DATA='[1,2,{"a":3}]'
+$ python complex.py
+[1, 2, {'a': 3}]
+
+```
+
+---
+
+## Now you can organize your variables in namespaces!
+
+```python
+# env.py
+class Database(EnvironConfig):
+    """Database configuration from the environment."""
+    __varprefix__ = 'DATABASE_'
+    HOSTNAME = StringVar(default='localhost')
+    PORT = IntVar(default=3306)
+    ...
+
+class Sentry(EnvironConfig):
+    """Sentry configuration from the environment."""
+    __varprefix__ = 'SENTRY_'
+    DSN = StringVar()
+```
+
+--
+
+```python
+# webapp.py
+from raven.contrib.flask import Sentry
+import pymsql
+
+from . import env
+
+...
+
+sentry = Sentry(app, dsn=env.Sentry.DSN)
+connection = pymysql.connect(host=env.Database.HOSTNAME,
+                             port=env.Database.PORT, ...)
+```
+
+---
+
+class: center, middle
+# Thank you!
+
+```bash
+$ pip install environconfig
+```
+
+###### Or copy it, it's just one file.
+
+class: left
+
+http://github.com/buguroo/environconfig
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js">
