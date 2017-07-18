@@ -18,6 +18,7 @@ from functools import partial
 import abc
 import collections.abc
 import csv
+import logging
 import os
 
 #
@@ -243,6 +244,18 @@ class MethodVar(VirtualVar):
 
     def _action(self, env, name):
         return self.callable(env)
+
+class LoggingLevelVar(EnvironVar):
+    def _to_python(self, value):
+        try:
+            return {"CRITICAL": logging.CRITICAL,
+                    "ERROR": logging.ERROR,
+                    "WARNING": logging.WARNING,
+                    "INFO": logging.INFO,
+                    "DEBUG": logging.DEBUG,
+                    "NOTSET": logging.NOTSET}[value]
+        except KeyError:
+            raise VarTypeCastError("Invalid logging level %r" % value)
 
 #
 # Custom exceptions
