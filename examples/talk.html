@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>environconfig</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# environconfig
+## Declarative Environment Variables
+
+---
+
+## Why should I use environment variables?
+
+--
+
+count: false 
+
+* Easy to change between deploys.
+
+--
+
+count: false 
+
+* Language and OS agnostic.
+
+--
+
+count: false 
+
+* Avoid hidden dependencies (config files).
+
+--
+
+count: false 
+
+* Docker friendly.
+
+--
+
+count: false 
+
+* Always available. No need to load them from disk.
+
+--
+
+count: false 
+
+* Very SIMPLE! key -> value (both strings).
+
+---
+
+## Environment Variables are cool! How can I use them in my project?
+
+--
+
+count: false 
+
+### The naive approach
+#### Easy, just get them from `os.environ`
+
+```python
+>>> import os
+>>> timeout = os.environ['TIMEOUT']
+>>> timeout
+'3'
+```
+
+---
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### OK, but I want an integer here!
+
+```python
+>>> timeout = int(os.environ['TIMEOUT'])
+>>> timeout
+3
+```
+
+---
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> try:
+...     timeout = int(os.environ['TIMEOUT'])
+... except KeyError:
+...     timeout = None
+```
+
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option B
+>>> timeout = os.environ.get('TIMEOUT', None)
+>>> if timeout is not None:
+...     timeout = int(timeout)
+```
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option C
+>>> timeout = None
+>>> if 'TIMEOUT' in os.environ:
+...     timeout = int(os.environ['TIMEOUT'])
+```
+
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option D
+>>> timeout = (int(os.environ.get['TIMEOUT'])
+...               if 'TIMEOUT' in os.environ
+...               else None)
+```
+
+---
+
+count: false 
+
+## Environment Variables are cool! How can I use them in my project?
+### The naive approach
+#### But if the variable is not set I want `None`, not `KeyError`!!!
+
+```python
+>>> # Option E
+>>> if 'TIMEOUT' in os.environ:
+...     timeout = int(os.environ['TIMEOUT'])
+... else:
+...     timeout = None
+```
+
+---
+
+# Problems with the naive approach
+
+* There **isn't** one obvious way to do it!
+
+--
+
+count: false
+
+* Breaks the DRY principle.
+
+--
+
+count: false
+* The code is often hard to read.
+
+--
+
+count: false
+* There is not a single point of definition.
+
+  * Usage of envvars can be spread all around your code.
+
+  * How do I know which variables my program is expecting? My interface is not well defined.
+
+---
+
+# Is there a better way?
+## Yes! use `environconfig`
+
+--
+
+`environconfig` is like Django models but for the environment
+
+
+* models.Model -> environconfig.EnvironConfig
+
+* models.<i>MyType</i>Field -> environconfig.<i>MyType</i>Var
+
+--
+
+#### 1) Define your "model"
+
+   ```python
+   class Config(EnvironConfig):
+       TIMEOUT = IntVar(default=None)
+   ```
+
+--
+
+#### 2) Use it!
+
+   ```python
+   >>> Config.TIMEOUT
+   3
+   ```
+---
+
+## Basic types built-in
+
+- String
+- Integer
+- Float
+- Boolean
+- Paths
+- List
+
+### Missing something?
+
+Please, send a pull request!
+
+---
+
+## Do you need something more exotic?
+
+```python
+# complex.py
+
+import json
+from environconfig import EnvironConfig, CustomVar
+
+JSONVar = CustomVar.new(json.loads)
+
+class Config(EnvironConfig):
+    COMPLEX_DATA = JSONVar(default=None)
+
+print(Config.COMPLEX_DATA)
+```
+
+--
+
+```bash
+$ export COMPLEX_DATA='[1,2,{"a":3}]'
+$ python complex.py
+[1, 2, {'a': 3}]
+
+```
+
+---
+
+## Now you can organize your variables in namespaces!
+
+```python
+# env.py
+class Database(EnvironConfig):
+    """Database configuration from the environment."""
+    __varprefix__ = 'DATABASE_'
+    HOSTNAME = StringVar(default='localhost')
+    PORT = IntVar(default=3306)
+    ...
+
+class Sentry(EnvironConfig):
+    """Sentry configuration from the environment."""
+    __varprefix__ = 'SENTRY_'
+    DSN = StringVar()
+```
+
+--
+
+```python
+# webapp.py
+from raven.contrib.flask import Sentry
+import pymsql
+
+from . import env
+
+...
+
+sentry = Sentry(app, dsn=env.Sentry.DSN)
+connection = pymysql.connect(host=env.Database.HOSTNAME,
+                             port=env.Database.PORT, ...)
+```
+
+---
+
+class: center, middle
+# Thank you!
+
+```bash
+$ pip install environconfig
+```
+
+###### Or copy it, it's just one file.
+
+class: left
+
+http://github.com/buguroo/environconfig
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
