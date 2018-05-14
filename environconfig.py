@@ -21,6 +21,7 @@ import csv
 import logging
 import os
 
+
 #
 # Abstract classes
 #
@@ -61,7 +62,8 @@ class EnvironConfigABCMeta(abc.ABCMeta):
                 fields.append(key)
         nmspc["fields"] = tuple(fields)
 
-        return super(EnvironConfigABCMeta, mcl).__new__(mcl, name, bases, nmspc)
+        return super(EnvironConfigABCMeta,
+                     mcl).__new__(mcl, name, bases, nmspc)
 
 
 class EnvironConfigABC(metaclass=EnvironConfigABCMeta):
@@ -69,6 +71,7 @@ class EnvironConfigABC(metaclass=EnvironConfigABCMeta):
     def getvar(self, name):
         """Return the raw value for this variable."""
         pass
+
 
 #
 # Other
@@ -89,7 +92,9 @@ class ClassAndInstanceMethod:
         self.obj = owner if instance is None else instance
         return self
 
+
 classandinstancemethod = ClassAndInstanceMethod  # A prettier alias
+
 
 #
 # Base classes
@@ -245,6 +250,7 @@ class MethodVar(VirtualVar):
     def _action(self, env, name):
         return self.callable(env)
 
+
 class LoggingLevelVar(EnvironVar):
     def _to_python(self, value):
         try:
@@ -256,6 +262,7 @@ class LoggingLevelVar(EnvironVar):
                     "NOTSET": logging.NOTSET}[value]
         except KeyError:
             raise VarTypeCastError("Invalid logging level %r" % value)
+
 
 #
 # Custom exceptions
