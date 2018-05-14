@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-behave-cmdline
-"""
 from setuptools import setup, find_packages
 import os
 
