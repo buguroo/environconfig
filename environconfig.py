@@ -131,7 +131,7 @@ class EnvironConfig(EnvironConfigABC):
                 except (VarUnsetError, VarTypeCastError):
                     return False
             return True
-        elif not name in obj.fields:
+        elif name not in obj.fields:
             raise UnknownVarError("field unknown %r" % name)
         else:
             try:
