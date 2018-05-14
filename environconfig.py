@@ -196,6 +196,11 @@ class StringVar(EnvironVar):
         return value
 
 
+class BytesVar(EnvironVar):
+    def _to_python(self, value):
+        return os.environ.encodevalue(value)
+
+
 class PathVar(EnvironVar):
     def _to_python(self, value):
         return os.path.abspath(os.path.expanduser(value))
